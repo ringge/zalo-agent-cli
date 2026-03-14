@@ -34,7 +34,7 @@ zalo-agent login --qr-url &
 sleep 5
 echo "QR ready at http://$SERVER_IP:18927/qr"
 ```
-Tell user: "Open **http://{SERVER_IP}:18927/qr** in your browser to scan QR with Zalo app. QR expires in 60 seconds."
+Tell user: "Open **http://{SERVER_IP}:18927/qr** in your browser. Then open **Zalo app > QR Scanner** (NOT regular camera) to scan. QR expires in 60 seconds."
 
 **Step 3:** Wait for user to confirm they scanned, then check if login succeeded.
 
@@ -43,7 +43,12 @@ Tell user: "Open **http://{SERVER_IP}:18927/qr** in your browser to scan QR with
 zalo-agent login --credentials ./creds.json
 ```
 
-**IMPORTANT:** QR expires in ~60 seconds. Agent MUST send URL to user BEFORE waiting for result. Never run login foreground — always background with `&`.
+**IMPORTANT:**
+- QR expires in ~60 seconds. Agent MUST send URL to user BEFORE waiting for result.
+- Never run login foreground — always background with `&`.
+- User MUST scan QR using **Zalo app > QR Scanner** (NOT regular phone camera).
+- On VPS: ALWAYS use `--qr-url` and open QR via browser. Terminal ASCII QR may not scan reliably.
+- The PNG served via HTTP is the official Zalo-generated QR — most reliable for scanning.
 
 ### Send Messages
 ```bash
