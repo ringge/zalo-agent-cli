@@ -4,8 +4,8 @@
  */
 
 import { resolve } from "path";
-import { getApi, autoLogin, clearSession } from "../core/zalo-client.js";
-import { success, error, info, warning, output } from "../utils/output.js";
+import { getApi } from "../core/zalo-client.js";
+import { success, error, info, output } from "../utils/output.js";
 
 export function registerMsgCommands(program) {
     const msg = program.command("msg").description("Send and manage messages");
@@ -228,139 +228,6 @@ export function registerMsgCommands(program) {
             } catch (e) {
                 error(`React failed: ${e.message}`);
             }
-        });
-
-    msg.command("listen")
-        .description(
-            "Listen for incoming messages in real-time via WebSocket. Outputs msgId + cliMsgId needed for react. Use --json for machine parsing.",
-        )
-        .option("-f, --filter <type>", "Filter messages: user (DM only), group (groups only), all (default)", "all")
-        .option("-w, --webhook <url>", "POST each message as JSON to this URL (for n8n, Make, etc.)")
-        .option("--no-self", "Exclude messages sent by this account")
-        .action(async (opts) => {
-            const jsonMode = program.opts().json;
-            const startTime = Date.now();
-            let reconnectCount = 0;
-
-            /** Format uptime as human-readable string */
-            function uptime() {
-                const s = Math.floor((Date.now() - startTime) / 1000);
-                const h = Math.floor(s / 3600);
-                const m = Math.floor((s % 3600) / 60);
-                return h > 0 ? `${h}h${m}m` : `${m}m${s % 60}s`;
-            }
-
-            /** Attach message handler to current API listener */
-            function attachMessageHandler(api) {
-                api.listener.on("message", async (msg) => {
-                    if (opts.filter === "user" && msg.type !== 0) return;
-                    if (opts.filter === "group" && msg.type !== 1) return;
-                    if (!opts.self && msg.isSelf) return;
-
-                    const content = typeof msg.data.content === "string" ? msg.data.content : "[non-text]";
-                    const data = {
-                        msgId: msg.data.msgId,
-                        cliMsgId: msg.data.cliMsgId,
-                        threadId: msg.threadId,
-                        type: msg.type,
-                        isSelf: msg.isSelf,
-                        content,
-                    };
-
-                    if (jsonMode) {
-                        console.log(JSON.stringify(data));
-                    } else {
-                        const dir = msg.isSelf ? "→" : "←";
-                        const typeLabel = msg.type === 0 ? "DM" : "GR";
-                        console.log(`  ${dir} [${typeLabel}] [${msg.threadId}] ${content}  (msgId: ${msg.data.msgId})`);
-                    }
-
-                    if (opts.webhook) {
-                        try {
-                            await fetch(opts.webhook, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(data),
-                            });
-                        } catch {
-                            // Silent webhook failure
-                        }
-                    }
-                });
-            }
-
-            /** Start listener with auto-reconnect and re-login */
-            async function startListener() {
-                try {
-                    const api = getApi();
-
-                    api.listener.on("connected", () => {
-                        if (reconnectCount > 0) {
-                            info(`Reconnected (attempt #${reconnectCount}, uptime: ${uptime()})`);
-                        }
-                    });
-
-                    api.listener.on("disconnected", (code, _reason) => {
-                        warning(`Disconnected (code: ${code}). Auto-retrying...`);
-                    });
-
-                    // "closed" = permanent close (retries exhausted or duplicate connection)
-                    api.listener.on("closed", async (code, _reason) => {
-                        if (code === 3000) {
-                            // Duplicate connection — someone opened Zalo Web
-                            error("Another Zalo Web session opened. Listener stopped.");
-                            error("Close the other session and restart listener.");
-                            process.exit(1);
-                        }
-
-                        reconnectCount++;
-                        warning(`Connection closed (code: ${code}). Re-login in 5s... (uptime: ${uptime()})`);
-
-                        // Re-login and restart
-                        await new Promise((r) => setTimeout(r, 5000));
-                        try {
-                            clearSession();
-                            await autoLogin(jsonMode);
-                            info(`Re-login successful. Restarting listener...`);
-                            attachMessageHandler(getApi());
-                            getApi().listener.start({ retryOnClose: true });
-                        } catch (e) {
-                            error(`Re-login failed: ${e.message}. Retrying in 30s...`);
-                            await new Promise((r) => setTimeout(r, 30000));
-                            startListener();
-                        }
-                    });
-
-                    api.listener.on("error", (_err) => {
-                        // Log but don't crash — WS errors are usually followed by close/disconnect
-                    });
-
-                    attachMessageHandler(api);
-                    // retryOnClose: true = zca-js auto-retries on temporary disconnects
-                    api.listener.start({ retryOnClose: true });
-
-                    info("Listening for messages... Press Ctrl+C to stop.");
-                    info("Auto-reconnect enabled. Will survive network drops.");
-                    if (opts.filter !== "all") info(`Filter: ${opts.filter} messages only`);
-                    if (opts.webhook) info(`Webhook: POST to ${opts.webhook}`);
-                } catch (e) {
-                    error(`Listen failed: ${e.message}`);
-                    process.exit(1);
-                }
-            }
-
-            await startListener();
-
-            // Keep alive until Ctrl+C
-            await new Promise((resolve) => {
-                process.on("SIGINT", () => {
-                    try {
-                        getApi().listener.stop();
-                    } catch {}
-                    info(`Listener stopped. Uptime: ${uptime()}, reconnects: ${reconnectCount}`);
-                    resolve();
-                });
-            });
         });
 
     msg.command("delete <msgId> <threadId>")
