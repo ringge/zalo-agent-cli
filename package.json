@@ -29,6 +29,10 @@
     "vietqr",
     "zca-js"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PhucMPham/zalo-agent-cli"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=20"
