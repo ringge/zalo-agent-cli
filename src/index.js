@@ -5,8 +5,14 @@
  * Entry point: registers all command groups via Commander.js.
  */
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { Command } from "commander";
 import { registerLoginCommands } from "./commands/login.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"));
 import { registerMsgCommands } from "./commands/msg.js";
 import { registerFriendCommands } from "./commands/friend.js";
 import { registerGroupCommands } from "./commands/group.js";
@@ -19,7 +25,7 @@ const program = new Command();
 program
     .name("zalo-agent")
     .description("CLI tool for Zalo automation — multi-account, proxy, bank transfers, QR payments")
-    .version("1.0.0")
+    .version(pkg.version)
     .option("--json", "Output results as JSON (machine-readable)")
     .hook("preAction", async (thisCommand) => {
         // Suppress zca-js internal logs in JSON mode to keep stdout clean for piping
