@@ -190,12 +190,19 @@ export function registerMsgCommands(program) {
     msg.command("react <msgId> <threadId> <reaction>")
         .description("React to a message with an emoji")
         .option("-t, --type <n>", "Thread type: 0=User, 1=Group", "0")
+        .option("-c, --cli-msg-id <id>", "Client message ID (defaults to msgId)")
         .action(async (msgId, threadId, reaction, opts) => {
             try {
-                const result = await getApi().addReaction(reaction, msgId, threadId, Number(opts.type));
+                // zca-js addReaction(icon, dest) — dest needs msgId + cliMsgId
+                const dest = {
+                    data: { msgId, cliMsgId: opts.cliMsgId || msgId },
+                    threadId,
+                    type: Number(opts.type),
+                };
+                const result = await getApi().addReaction(reaction, dest);
                 output(result, program.opts().json, () => success(`Reacted with '${reaction}'`));
             } catch (e) {
-                error(e.message);
+                error(`React failed: ${e.message}`);
             }
         });
 
