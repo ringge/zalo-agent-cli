@@ -221,6 +221,7 @@ zalo-agent msg send <threadId> "Hello World" --style 0:5:bold 6:5:italic
 |---------|-------------|
 | `group list` | List all groups |
 | `group create <name> <memberIds...>` | Create group |
+| `group history <groupId> [-n count]` | Get chat history (normalized JSON) |
 | `group info <groupId>` | Group details |
 | `group members <groupId>` | List members |
 | `group add-member <groupId> <userIds...>` | Add members |

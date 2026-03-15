@@ -47,6 +47,64 @@ export function registerGroupCommands(program) {
         });
 
     group
+        .command("history <groupId>")
+        .description("Get group chat history (recent messages)")
+        .option("-n, --count <n>", "Number of messages to fetch", "20")
+        .action(async (groupId, opts) => {
+            try {
+                const result = await getApi().getGroupChatHistory(groupId, Number(opts.count));
+                const msgs = result?.groupMsgs || [];
+
+                // Normalize messages into clean, storage-friendly JSON
+                const normalized = msgs.map((m) => {
+                    const d = m.data || m;
+                    const content = typeof d.content === "string" ? d.content : d.content;
+                    return {
+                        msgId: d.msgId,
+                        cliMsgId: d.cliMsgId,
+                        fromUid: d.uidFrom,
+                        groupId: d.idTo,
+                        msgType: d.msgType,
+                        content: typeof content === "string" ? content : content,
+                        timestamp: Number(d.ts),
+                        isoTime: new Date(Number(d.ts)).toISOString(),
+                        isSelf: m.isSelf ?? false,
+                        ...(d.mentions && { mentions: d.mentions }),
+                        ...(d.quote && {
+                            quote: {
+                                ownerId: d.quote.ownerId,
+                                msg: d.quote.msg,
+                                msgId: d.quote.globalMsgId,
+                            },
+                        }),
+                    };
+                });
+
+                const payload = {
+                    groupId,
+                    count: normalized.length,
+                    hasMore: result?.more === 1,
+                    messages: normalized,
+                };
+
+                output(payload, program.opts().json, () => {
+                    info(`${normalized.length} message(s) in group ${groupId}`);
+                    if (result?.more === 1) info("(more messages available)");
+                    console.log();
+                    for (const m of normalized) {
+                        const time = new Date(m.timestamp).toLocaleTimeString();
+                        const dir = m.isSelf ? "→" : "←";
+                        const text =
+                            typeof m.content === "string" ? m.content.slice(0, 80) : `[${m.msgType || "attachment"}]`;
+                        console.log(`  ${time} ${dir} ${m.fromUid}: ${text}`);
+                    }
+                });
+            } catch (e) {
+                error(`Get history failed: ${e.message}`);
+            }
+        });
+
+    group
         .command("members <groupId>")
         .description("List group members")
         .action(async (groupId) => {
