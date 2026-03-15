@@ -4,9 +4,14 @@
 
 # zalo-agent-cli
 
+[![npm version](https://img.shields.io/npm/v/zalo-agent-cli.svg)](https://www.npmjs.com/package/zalo-agent-cli)
+[![npm downloads](https://img.shields.io/npm/dm/zalo-agent-cli.svg)](https://www.npmjs.com/package/zalo-agent-cli)
+[![npm total downloads](https://img.shields.io/npm/dt/zalo-agent-cli.svg)](https://www.npmjs.com/package/zalo-agent-cli)
+[![license](https://img.shields.io/npm/l/zalo-agent-cli.svg)](https://github.com/PhucMPham/zalo-agent-cli/blob/main/LICENSE)
+
 CLI tool for Zalo automation — multi-account, proxy support, bank transfers, QR payments.
 
-Built on top of [zca-js](https://github.com/AKAspanion/zca-js), the unofficial Zalo API library for Node.js.
+Built on top of [zca-js](https://github.com/RFS-ADRENO/zca-js), the unofficial Zalo API library for Node.js.
 
 **[Tiếng Việt](#tiếng-việt)** | **[English](#english)**
 
