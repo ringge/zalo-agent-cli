@@ -172,6 +172,18 @@ export function registerGroupCommands(program) {
         });
 
     group
+        .command("upgrade-community <groupId>")
+        .description("Upgrade a group to Zalo Community (requires verified 18+ account)")
+        .action(async (groupId) => {
+            try {
+                const result = await getApi().upgradeGroupToCommunity(groupId);
+                output(result, program.opts().json, () => success("Group upgraded to community"));
+            } catch (e) {
+                error(`Upgrade failed: ${e.message}`);
+            }
+        });
+
+    group
         .command("leave <groupId>")
         .description("Leave a group")
         .action(async (groupId) => {

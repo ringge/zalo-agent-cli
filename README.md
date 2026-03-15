@@ -201,6 +201,7 @@ zalo-agent whoami
 | `group add-member <groupId> <userIds...>` | Add members |
 | `group remove-member <groupId> <userIds...>` | Remove members |
 | `group rename <groupId> <name>` | Rename |
+| `group upgrade-community <groupId>` | Upgrade group to Zalo Community |
 | `group leave <groupId>` | Leave group |
 | `group join <link>` | Join via invite link |
 
