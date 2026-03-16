@@ -551,9 +551,19 @@ Transfer content: max 50 characters (VietQR/NAPAS spec).
 └── qr.png                     # Last generated QR code
 ```
 
+### Support Us
+
+If this tool saves you time, consider buying us a coffee!
+
+<p align="center">
+  <img src="assets/donate-qr.jpg" width="280" alt="Donate via VietQR (OCB)" />
+  <br/>
+  <em>Scan with any Vietnamese banking app</em>
+</p>
+
 ### Disclaimer
 
-> ⚠️ **Warning:** This tool uses [zca-js](https://github.com/AKAspanion/zca-js), an **unofficial** Zalo API library. Zalo does not support this and **your account may be banned**. Use at your own risk.
+> ⚠️ **Warning:** This tool uses [zca-js](https://github.com/RFS-ADRENO/zca-js), an **unofficial** Zalo API library. Zalo does not support this and **your account may be banned**. Use at your own risk.
 
 This is an **unofficial** project and is **not affiliated with, endorsed by, or connected to Zalo or VNG Corporation**. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
 
@@ -798,9 +808,19 @@ Nội dung chuyển khoản: tối đa 50 ký tự (theo chuẩn VietQR/NAPAS).
 - Mật khẩu proxy **không bao giờ** hiển thị — luôn bị ẩn
 - HTTP server QR chỉ lắng nghe `127.0.0.1` (không truy cập từ bên ngoài)
 
+### Ủng hộ
+
+Nếu tool này giúp bạn tiết kiệm thời gian, hãy mua cho chúng tôi một ly cà phê!
+
+<p align="center">
+  <img src="assets/donate-qr.jpg" width="280" alt="Donate qua VietQR (OCB)" />
+  <br/>
+  <em>Quét bằng app ngân hàng bất kỳ</em>
+</p>
+
 ### Tuyên bố miễn trừ
 
-> ⚠️ **Cảnh báo:** Tool này sử dụng [zca-js](https://github.com/AKAspanion/zca-js) — thư viện gọi API Zalo **không chính thức**. Zalo không hỗ trợ và **tài khoản của bạn có thể bị khóa (ban)**. Dùng trên tinh thần tự chịu trách nhiệm.
+> ⚠️ **Cảnh báo:** Tool này sử dụng [zca-js](https://github.com/RFS-ADRENO/zca-js) — thư viện gọi API Zalo **không chính thức**. Zalo không hỗ trợ và **tài khoản của bạn có thể bị khóa (ban)**. Dùng trên tinh thần tự chịu trách nhiệm.
 
 Đây là dự án **không chính thức** và **không liên kết với Zalo hay Tập đoàn VNG**. Xem [DISCLAIMER.md](DISCLAIMER.md) để biết chi tiết.
 
