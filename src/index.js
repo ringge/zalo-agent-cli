@@ -26,6 +26,7 @@ import { registerQuickMsgCommands } from "./commands/quick-msg.js";
 import { registerLabelCommands } from "./commands/label.js";
 import { registerCatalogCommands } from "./commands/catalog.js";
 import { registerListenCommand } from "./commands/listen.js";
+import { registerOACommands } from "./commands/oa.js";
 import { autoLogin } from "./core/zalo-client.js";
 import { checkForUpdates, selfUpdate } from "./utils/update-check.js";
 import { success, error, warning } from "./utils/output.js";
@@ -41,16 +42,17 @@ program
     .version(pkg.version)
     .option("--json", "Output results as JSON (machine-readable)")
     .hook("preAction", async (thisCommand) => {
+        const cmdName = thisCommand.args?.[0] || thisCommand.name();
         // Suppress zca-js internal logs in JSON mode to keep stdout clean for piping
         if (program.opts().json) {
             process.env.ZALO_JSON_MODE = "1";
-        } else {
+        } else if (cmdName !== "oa") {
+            // OA commands use official Zalo API — no disclaimer needed
             warning(DISCLAIMER);
             console.log();
         }
-        // Auto-login before any command that needs it (skip for login/account commands)
-        const cmdName = thisCommand.args?.[0] || thisCommand.name();
-        const skipAutoLogin = ["login", "account", "help", "version", "update"].includes(cmdName);
+        // Auto-login before any command that needs it (skip for login/account/oa commands)
+        const skipAutoLogin = ["login", "account", "help", "version", "update", "oa"].includes(cmdName);
         if (!skipAutoLogin) {
             await autoLogin(program.opts().json);
         }
@@ -85,5 +87,6 @@ registerQuickMsgCommands(program);
 registerLabelCommands(program);
 registerCatalogCommands(program);
 registerListenCommand(program);
+registerOACommands(program);
 
 program.parse();

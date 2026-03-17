@@ -1,7 +1,7 @@
 {
   "name": "zalo-agent-cli",
-  "version": "1.0.31",
-  "description": "CLI tool for Zalo automation — multi-account, proxy support, bank transfers, QR payments",
+  "version": "1.1.0",
+  "description": "CLI tool for Zalo automation — multi-account, proxy, bank transfers, QR payments, Official Account API v3.0",
   "type": "module",
   "bin": {
     "zalo-agent": "src/index.js"
@@ -28,7 +28,10 @@
     "vietnam",
     "proxy",
     "vietqr",
-    "zca-js"
+    "zca-js",
+    "official-account",
+    "zalo-oa",
+    "webhook"
   ],
   "repository": {
     "type": "git",
