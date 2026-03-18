@@ -108,7 +108,21 @@ export function registerListenCommand(program) {
                         if (opts.filter === "group" && msg.type !== THREAD_GROUP) return;
                         if (!opts.self && msg.isSelf) return;
 
-                        const content = typeof msg.data.content === "string" ? msg.data.content : "[non-text]";
+                        const rawContent = msg.data.content;
+                        const isText = typeof rawContent === "string";
+                        const msgType = msg.data.msgType || null;
+                        // Build readable display: show type + title/href for non-text
+                        let displayContent;
+                        if (isText) {
+                            displayContent = rawContent;
+                        } else if (rawContent && typeof rawContent === "object") {
+                            const parts = [msgType || "attachment"];
+                            if (rawContent.title) parts.push(`"${rawContent.title}"`);
+                            if (rawContent.href) parts.push(rawContent.href);
+                            displayContent = `[${parts.join(" | ")}]`;
+                        } else {
+                            displayContent = `[${msgType || "non-text"}]`;
+                        }
                         const data = {
                             event: "message",
                             msgId: msg.data.msgId,
@@ -116,13 +130,16 @@ export function registerListenCommand(program) {
                             threadId: msg.threadId,
                             type: msg.type,
                             isSelf: msg.isSelf,
-                            content,
+                            uidFrom: msg.data.uidFrom || null,
+                            dName: msg.data.dName || null,
+                            msgType,
+                            content: rawContent,
                         };
                         const dir = msg.isSelf ? "→" : "←";
                         const typeLabel = msg.type === THREAD_USER ? "DM" : "GR";
                         emitEvent(
                             data,
-                            `${dir} [${typeLabel}] [${msg.threadId}] ${content}  (msgId: ${msg.data.msgId})`,
+                            `${dir} [${typeLabel}] [${msg.threadId}] ${displayContent}  (msgId: ${msg.data.msgId})`,
                         );
                     });
                 }
