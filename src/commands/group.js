@@ -12,11 +12,73 @@ export function registerGroupCommands(program) {
 
     group
         .command("list")
-        .description("List all groups")
-        .action(async () => {
+        .description("List all groups with names and member counts")
+        .option("-q, --query <text>", "Filter groups by name (case-insensitive, accent-insensitive)")
+        .action(async (opts) => {
             try {
-                const result = await getApi().getAllGroups();
-                output(result, program.opts().json);
+                const api = getApi();
+                const groupsResult = await api.getAllGroups();
+                const groupIds = Object.keys(groupsResult?.gridVerMap || {});
+
+                if (groupIds.length === 0) {
+                    info("No groups found.");
+                    return;
+                }
+
+                // Batch fetch group info (50 per batch) to get names
+                const groups = [];
+                const batchSize = 50;
+                for (let i = 0; i < groupIds.length; i += batchSize) {
+                    const batch = groupIds.slice(i, i + batchSize);
+                    try {
+                        const groupInfo = await api.getGroupInfo(batch);
+                        const map = groupInfo?.gridInfoMap || {};
+                        for (const [gid, g] of Object.entries(map)) {
+                            groups.push({
+                                threadId: gid,
+                                name: g.name || "?",
+                                memberCount: g.totalMember || 0,
+                            });
+                        }
+                    } catch {
+                        // Skip failed batch, add IDs without names
+                        for (const id of batch) {
+                            groups.push({ threadId: id, name: "?", memberCount: 0 });
+                        }
+                    }
+                }
+
+                // Apply name filter if --query provided
+                let filtered = groups;
+                if (opts.query) {
+                    const q = opts.query
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/đ/g, "d")
+                        .replace(/Đ/g, "D")
+                        .toLowerCase();
+                    filtered = groups.filter((g) => {
+                        const normalized = g.name
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")
+                            .replace(/đ/g, "d")
+                            .replace(/Đ/g, "D")
+                            .toLowerCase();
+                        return normalized.includes(q);
+                    });
+                }
+
+                output(filtered, program.opts().json, () => {
+                    info(`${filtered.length} group(s)${opts.query ? ` matching "${opts.query}"` : ""} (${groupIds.length} total)`);
+                    console.log();
+                    console.log("  THREAD_ID               MEMBERS  NAME");
+                    console.log("  " + "-".repeat(65));
+                    for (const g of filtered) {
+                        const id = g.threadId.padEnd(22);
+                        const members = String(g.memberCount).padStart(5);
+                        console.log(`  ${id}  ${members}    ${g.name}`);
+                    }
+                });
             } catch (e) {
                 error(e.message);
             }
