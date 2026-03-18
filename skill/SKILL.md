@@ -1,6 +1,6 @@
 ---
 name: zalo-agent
-description: "Automate Zalo messaging and Official Account (OA) via zalo-agent-cli. Triggers: 'zalo', 'send zalo', 'zalo OA', 'official account', 'bank card', 'QR transfer', 'VietQR', 'listen zalo', 'zalo webhook', 'zalo group', 'zalo friend'."
+description: "Automate Zalo messaging, Official Account (OA), and MCP server integration via zalo-agent-cli. Triggers: 'zalo', 'send zalo', 'zalo OA', 'official account', 'bank card', 'QR transfer', 'VietQR', 'listen zalo', 'zalo webhook', 'zalo group', 'zalo friend', 'zalo MCP', 'MCP server'."
 homepage: https://github.com/PhucMPham/zalo-agent-cli
 metadata: {"openclaw": {"requires": {"bins": ["zalo-agent"]}, "os": ["darwin", "linux"]}}
 ---
@@ -10,7 +10,7 @@ metadata: {"openclaw": {"requires": {"bins": ["zalo-agent"]}, "os": ["darwin", "
 Automate Zalo messaging, groups, contacts, payments, and real-time events via `zalo-agent` CLI.
 
 ## Scope
-Handles: login, messaging (text/image/file/sticker/voice/video/link), reactions, mentions, recall, friends, groups, polls, reminders, auto-reply, labels, catalogs, listen (WebSocket), webhooks, bank cards, VietQR, multi-account with proxy, **Official Account (OA) API v3.0** (OAuth login, OA messaging, followers, tags, webhook listener, store, articles).
+Handles: login, messaging (text/image/file/sticker/voice/video/link), reactions, mentions, recall, friends, groups, polls, reminders, auto-reply, labels, catalogs, listen (WebSocket), webhooks, bank cards, VietQR, multi-account with proxy, **Official Account (OA) API v3.0** (OAuth login, OA messaging, followers, tags, webhook listener, store, articles), **MCP Server** (Model Context Protocol for Claude Code and MCP clients).
 Does NOT handle: Zalo Mini App, Zalo Ads, ZNS templates, non-Zalo platforms.
 
 ## Prerequisites
@@ -123,6 +123,22 @@ zalo-agent oa login --app-id <ID> --secret <KEY> --callback-host https://vps.com
 ```
 OA uses official Zalo API (no ban risk). Separate auth from personal account.
 Full reference: `references/oa-command-reference.md`
+
+### MCP Server (Model Context Protocol)
+```bash
+zalo-agent mcp start                                # stdio transport (default, for local Claude Code)
+zalo-agent mcp start --http <port>                  # HTTP transport (for VPS/remote clients)
+zalo-agent mcp start --auth <token>                 # Bearer token auth (HTTP mode)
+zalo-agent mcp start --config <path>                # Custom config file
+```
+MCP tools exposed:
+- `zalo_get_messages` — Get buffered messages with cursor-based pagination (incremental reads)
+- `zalo_send_message` — Send text message to a thread (DM or group)
+- `zalo_list_threads` — List active threads with unread counts and metadata
+- `zalo_mark_read` — Discard messages up to a given cursor
+
+Use stdio mode for local Claude Code, HTTP mode for VPS deployments.
+Full reference: `references/mcp-guide.md`
 
 ### Other: profile, conv, poll, reminder, auto-reply, label, catalog, logout
 Full commands: `references/command-reference.md`
