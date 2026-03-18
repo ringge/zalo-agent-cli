@@ -8,9 +8,7 @@ function createMockApi(groups = {}, friends = []) {
             gridVerMap: Object.fromEntries(Object.keys(groups).map((id) => [id, 1])),
         }),
         getGroupInfo: async (ids) => ({
-            gridInfoMap: Object.fromEntries(
-                ids.filter((id) => groups[id]).map((id) => [id, groups[id]]),
-            ),
+            gridInfoMap: Object.fromEntries(ids.filter((id) => groups[id]).map((id) => [id, groups[id]])),
         }),
         getAllFriends: async () => friends,
     };
@@ -54,8 +52,12 @@ describe("ThreadNameCache", () => {
 
     it("handles API failures gracefully", async () => {
         const api = {
-            getAllGroups: async () => { throw new Error("network error"); },
-            getAllFriends: async () => { throw new Error("network error"); },
+            getAllGroups: async () => {
+                throw new Error("network error");
+            },
+            getAllFriends: async () => {
+                throw new Error("network error");
+            },
         };
 
         await cache.init(api);
@@ -73,9 +75,7 @@ describe("ThreadNameCache", () => {
                     g3: { name: "Soạn hàng kho 2", totalMember: 8 },
                     g4: { name: "Admin Team", totalMember: 5 },
                 },
-                [
-                    { userId: "u1", displayName: "Soạn Văn", zaloName: "SV" },
-                ],
+                [{ userId: "u1", displayName: "Soạn Văn", zaloName: "SV" }],
             );
             await cache.init(api);
         });

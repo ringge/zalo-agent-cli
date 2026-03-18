@@ -127,7 +127,7 @@ export function registerTools(server, api, buffer, filter, config, nameCache) {
                         ...t,
                         threadType,
                         name: cached?.name ?? null,
-                        ...(cached?.memberCount != null && { memberCount: cached.memberCount }),
+                        ...(cached?.memberCount !== undefined && { memberCount: cached.memberCount }),
                     };
                 });
                 const filtered = type === "all" ? enriched : enriched.filter((t) => t.threadType === type);

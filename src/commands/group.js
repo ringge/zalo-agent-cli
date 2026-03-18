@@ -69,7 +69,9 @@ export function registerGroupCommands(program) {
                 }
 
                 output(filtered, program.opts().json, () => {
-                    info(`${filtered.length} group(s)${opts.query ? ` matching "${opts.query}"` : ""} (${groupIds.length} total)`);
+                    info(
+                        `${filtered.length} group(s)${opts.query ? ` matching "${opts.query}"` : ""} (${groupIds.length} total)`,
+                    );
                     console.log();
                     console.log("  THREAD_ID               MEMBERS  NAME");
                     console.log("  " + "-".repeat(65));
